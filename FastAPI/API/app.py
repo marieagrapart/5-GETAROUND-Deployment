@@ -1,7 +1,7 @@
 import json
-import mlflow 
+import mlflow
 import uvicorn
-import pandas as pd 
+import pandas as pd
 from pydantic import BaseModel
 from typing import Literal, List, Union
 from fastapi import FastAPI, File, UploadFile
@@ -23,11 +23,7 @@ tags_metadata = [
         "name": "Introduction Endpoints",
         "description": "Simple endpoints to try out!",
     },
-
-    {
-        "name": "Machine Learning",
-        "description": "Prediction Endpoint."
-    }
+    {"name": "Machine Learning", "description": "Prediction Endpoint."},
 ]
 
 app = FastAPI(
@@ -36,10 +32,11 @@ app = FastAPI(
     version="0.1",
     contact={
         "name": "MarieA",
-      #  "url": "tbc",
+        #  "url": "tbc",
     },
-    openapi_tags=tags_metadata
+    openapi_tags=tags_metadata,
 )
+
 
 class PredictionFeatures(BaseModel):
     model_key: str = "Citroën"
@@ -56,6 +53,7 @@ class PredictionFeatures(BaseModel):
     has_speed_regulator: bool = True
     winter_tires: bool = True
 
+
 @app.get("/", tags=["Introduction Endpoints"])
 async def index():
     """
@@ -64,29 +62,30 @@ async def index():
     message = "Bonjour! Ce `/` est le point de terminaison le plus simple et par défaut. Si vous voulez en savoir plus, consultez la documentation de l'API sur `/docs`"
     return message
 
+
 @app.post("/predict", tags=["Machine Learning"])
 async def predict(predictionFeatures: PredictionFeatures):
     """
-    Suggestion of location price for given car infos! 
+    Suggestion of location price for given car infos!
     """
-    # Read data 
+    # Read data
     Cars_info = pd.DataFrame(dict(predictionFeatures), index=[0])
 
-     # Log model from mlflow 
-    logged_model = 'runs:/66041b67ae354185846b5c361e24f56c/car-price-path'
+    # Log model from mlflow
+    logged_model = "runs:/66041b67ae354185846b5c361e24f56c/car-price-path"
 
     # Load model as a PyFuncModel.
     loaded_model = mlflow.pyfunc.load_model(logged_model)
 
     ## If you want to load model persisted locally
-    #loaded_model = joblib.load('model.joblib')
+    # loaded_model = joblib.load('model.joblib')
 
     prediction = loaded_model.predict(Cars_info)
 
     # Format response
-    response = {"Suggested price in euro": str(round(prediction.tolist()[0],2))} 
+    response = {"suggested_price_in_euro": str(round(prediction.tolist()[0], 2))}
     return response
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=4000)
