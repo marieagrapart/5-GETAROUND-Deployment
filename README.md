@@ -21,7 +21,9 @@ You will need :
 Once you have the prerequisites, 
 You can run in : 
 - **Scrapping** : release the docker on heroku
-- **FastAPI** : **Model** : *train.py* and release the docker on heroku & **API** release the docker on heroku
+- **FastAPI** : 
+    - **Model** : *train.py* and release the docker on heroku
+    - **API** release the docker on heroku
 
 ## Authors
 
